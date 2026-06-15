@@ -131,4 +131,27 @@ public class Driver : MonoBehaviour
             capsuleCollider.height = Mathf.Lerp(capsuleCollider.height, targetHeight, Time.deltaTime * crouchSmoothTime);
         }
     }
+
+// Добавьте ЭТИ МЕТОДЫ в конец вашего скрипта Driver (перед последней скобкой)
+
+public bool IsExhaustedPublic()
+{
+    return isExhausted;
 }
+
+public float GetCurrentSpeedPublic()
+{
+    return currentSpeed;
+}
+
+public bool IsRunningPublic()
+{
+    return currentSpeed == runSpeed && !isExhausted;
+}
+
+public bool IsCrouchingPublic()
+{
+    return Input.GetKey(KeyCode.LeftControl);
+}
+}
+
