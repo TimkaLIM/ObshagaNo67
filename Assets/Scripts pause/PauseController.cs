@@ -6,15 +6,32 @@ public class PauseController : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     private bool isPaused = false;
 
+    // Ссылка на здоровье игрока
+    private PlayerHealth playerHealth;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         pausePanel.SetActive(false);
+
+        // Находим скрипт здоровья игрока
+        playerHealth = FindObjectOfType<PlayerHealth>();
     }
 
     void Update()
     {
+        // ЕСЛИ ИГРОК МЁРТВ — НЕ РАЗРЕШАТЬ ПАУЗУ
+        if (playerHealth != null && playerHealth.IsDead())
+        {
+            // Если пауза была включена — выключаем её
+            if (isPaused)
+            {
+                ResumeGame();
+            }
+            return; // Выходим, не давая открыть паузу
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)

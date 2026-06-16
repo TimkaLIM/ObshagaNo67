@@ -1,33 +1,53 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro; // ОБЯЗАТЕЛЬНО добавляем для работы с текстом TextMeshPro
+using TMPro;
 
 public class EscapeDoor : MonoBehaviour
 {
     [Header("Настройки побега")]
-    public int totalNotesNeeded = 5; 
-    public string victorySceneName = "VictoryScene"; 
+    public int totalNotesNeeded = 5;
+    public string victorySceneName = "VictoryScene";
 
     [Header("Интерфейс")]
-    public TextMeshProUGUI counterText; // Сюда мы перетащим наш текст счетчика
+    public TextMeshProUGUI counterText;
+
+    [Header("Настройки сложности")]
+    public AudioSource strangeSoundSource;
+    public AudioClip[] strangeSoundClips;
+    public GameObject monsterPrefab;
+    public Transform[] monsterSpawnPoints;
+    public AlarmSystem alarmSystem;
 
     [HideInInspector]
-    public int collectedNotes = 0; 
+    public int collectedNotes = 0;
+
+    private bool strangeSoundPlayed = false;
+    private bool monsterSpawned = false;
+    private bool alarmTriggered = false;
+    private int lastNoteCount = 0;
 
     void Start()
     {
-        // Обновляем текст в самом начале игры, чтобы там сразу было "0 / 5"
         UpdateCounterUI();
+        lastNoteCount = collectedNotes;
     }
 
-    // Метод, который увеличивает счетчик (его вызывает студентческий билет)
+    void Update()
+    {
+        if (collectedNotes != lastNoteCount)
+        {
+            OnNotesCollected();
+            lastNoteCount = collectedNotes;
+        }
+    }
+
     public void AddNote()
     {
         collectedNotes++;
-        UpdateCounterUI(); // Обновляем текст на экране
+        UpdateCounterUI();
+        Debug.Log($"[Сложность] Собрано частей: {collectedNotes} / {totalNotesNeeded}");
     }
 
-    // Метод, который просто меняет буквы на экране
     void UpdateCounterUI()
     {
         if (counterText != null)
@@ -36,16 +56,106 @@ public class EscapeDoor : MonoBehaviour
         }
     }
 
+    void OnNotesCollected()
+    {
+        /*
+        if (collectedNotes >= 2 && !strangeSoundPlayed)
+        {
+            PlayStrangeSounds();
+            strangeSoundPlayed = true;
+        }
+        */
+
+        if (collectedNotes >= 3 && !monsterSpawned)
+        {
+            SpawnMonster();
+            monsterSpawned = true;
+        }
+
+        /*
+        if (collectedNotes >= 4 && !alarmTriggered)
+        {
+            TriggerAlarm();
+            alarmTriggered = true;
+        }
+        */
+        if (collectedNotes >= 5)
+        {
+            MaxDifficulty();
+        }
+    }
+
+    void PlayStrangeSounds()
+    {
+        Debug.Log("[Сложность] Странные звуки!");
+
+        if (strangeSoundSource != null && strangeSoundClips != null && strangeSoundClips.Length > 0)
+        {
+            AudioClip randomClip = strangeSoundClips[Random.Range(0, strangeSoundClips.Length)];
+            strangeSoundSource.PlayOneShot(randomClip, 0.7f);
+        }
+    }
+
+    void SpawnMonster()
+    {
+        Debug.Log("[Сложность] Появление монстра!");
+
+        if (monsterPrefab == null)
+        {
+            Debug.LogError("Monster Prefab не назначен!");
+            return;
+        }
+
+        if (monsterSpawnPoints == null || monsterSpawnPoints.Length == 0)
+        {
+            Debug.LogError("Нет точек спавна монстра! Добавьте точки в массив Monster Spawn Points");
+            return;
+        }
+
+        // ВЫБИРАЕМ СЛУЧАЙНУЮ ТОЧКУ ИЗ МАССИВА
+        int randomIndex = Random.Range(0, monsterSpawnPoints.Length);
+        Transform chosenSpawnPoint = monsterSpawnPoints[randomIndex];
+
+        Debug.Log($"[Сложность] Монстр появляется в точке {randomIndex}: {chosenSpawnPoint.position}");
+
+        // СОЗДАЁМ МОНСТРА В ВЫБРАННОЙ ТОЧКЕ
+        Instantiate(monsterPrefab, chosenSpawnPoint.position, chosenSpawnPoint.rotation);
+    }
+
+    void TriggerAlarm()
+    {
+        Debug.Log("[Сложность] Включение всех сирен!");
+
+        AlarmSystem[] allAlarms = FindObjectsByType<AlarmSystem>(FindObjectsSortMode.None);
+
+        if (allAlarms.Length > 0)
+        {
+            foreach (AlarmSystem alarm in allAlarms)
+            {
+                alarm.ForceActivateAlarm();
+            }
+            Debug.Log($"[Сложность] Включено сирен: {allAlarms.Length}");
+        }
+        else
+        {
+            Debug.LogWarning("[Сложность] Сирены не найдены!");
+        }
+    }
+
+    void MaxDifficulty()
+    {
+        Debug.Log("[Сложность] Максимальная сложность!");
+    }
+
     public void TryEscape()
     {
         if (collectedNotes >= totalNotesNeeded)
         {
-            Debug.Log("Победа! Загружаем экран победы.");
-            SceneManager.LoadScene(victorySceneName); 
+            SceneManager.LoadScene(victorySceneName);
         }
         else
         {
-            Debug.Log($"Еще не время. Собрано: {collectedNotes} из {totalNotesNeeded}");
+            Debug.Log($"Собрано: {collectedNotes} из {totalNotesNeeded}");
         }
     }
 }
