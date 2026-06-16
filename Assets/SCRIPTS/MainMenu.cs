@@ -13,8 +13,8 @@ public class MainMenu : MonoBehaviour
     // Метод для кнопки НАЧАТЬ ИГРУ
     public void PlayGame()
     {
-        Debug.Log("Загружаем первый этаж общаги...");
-        SceneManager.LoadScene("floor1"); // Загрузит сцену с твоим точным названием
+        Debug.Log("Загружаем катсцену...");
+        SceneManager.LoadScene("IntroCutscene");
     }
 
     // Метод для кнопки ВЫХОД
