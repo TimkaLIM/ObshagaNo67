@@ -25,7 +25,7 @@ EditorBuildSettings:
     guid: 73b21505e64cb8545ad4bde4f080d36a
   - enabled: 0
     path: Assets/Scenes/VictoryCutscene.unity
-    guid: fc6449a3d2c628741ab23ff479a7c978
+    guid: 73b21505e64cb8545ad4bde4f080d36a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
