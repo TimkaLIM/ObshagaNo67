@@ -44243,7 +44243,7 @@ MonoBehaviour:
   attackRange: 2
   fieldOfView: 60
   proximityRange: 3
-  hearingRange: 25
+  hearingRange: 15
   hearingMemoryTime: 5
   patrolRadius: 50
   waitTimeAtPoint: 1.5
