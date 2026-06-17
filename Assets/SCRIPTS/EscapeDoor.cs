@@ -151,7 +151,13 @@ public class EscapeDoor : MonoBehaviour
     {
         if (collectedNotes >= totalNotesNeeded)
         {
-            SceneManager.LoadScene(victorySceneName);
+            Debug.Log("Победа! Останавливаем музыку...");
+            
+            GameMusicManager musicManager = FindObjectOfType<GameMusicManager>();
+            if (musicManager != null)
+                musicManager.StopMusic();
+            
+            SceneManager.LoadScene("VictoryCutscene");
         }
         else
         {

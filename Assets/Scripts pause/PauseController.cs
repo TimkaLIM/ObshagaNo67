@@ -6,7 +6,9 @@ public class PauseController : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     private bool isPaused = false;
 
-    // Ссылка на здоровье игрока
+    // Ссылка на слайдер стамины
+    public GameObject staminaSlider;  // ← Добавь это поле
+
     private PlayerHealth playerHealth;
 
     void Start()
@@ -14,22 +16,18 @@ public class PauseController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         pausePanel.SetActive(false);
-
-        // Находим скрипт здоровья игрока
         playerHealth = FindObjectOfType<PlayerHealth>();
     }
 
     void Update()
     {
-        // ЕСЛИ ИГРОК МЁРТВ — НЕ РАЗРЕШАТЬ ПАУЗУ
         if (playerHealth != null && playerHealth.IsDead())
         {
-            // Если пауза была включена — выключаем её
             if (isPaused)
             {
                 ResumeGame();
             }
-            return; // Выходим, не давая открыть паузу
+            return;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -48,6 +46,10 @@ public class PauseController : MonoBehaviour
         isPaused = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
+        // ПОКАЗЫВАЕМ СЛАЙДЕР
+        if (staminaSlider != null)
+            staminaSlider.SetActive(true);
     }
 
     public void PauseGame()
@@ -57,6 +59,10 @@ public class PauseController : MonoBehaviour
         isPaused = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        
+        // СКРЫВАЕМ СЛАЙДЕР
+        if (staminaSlider != null)
+            staminaSlider.SetActive(false);
     }
 
     public void LoadMainMenu()
