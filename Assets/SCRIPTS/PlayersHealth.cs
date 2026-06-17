@@ -64,6 +64,15 @@ public class PlayerHealth : MonoBehaviour
         
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        GameMusicManager musicManager = FindObjectOfType<GameMusicManager>();
+        if (musicManager != null)
+            musicManager.StopMusic();
+        
+        GameObject staminaSlider = GameObject.Find("StaminaSlider");
+        if (staminaSlider != null)
+            staminaSlider.SetActive(false);
+
     }
     
     public void RestartGame()

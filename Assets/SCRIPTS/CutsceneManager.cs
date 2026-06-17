@@ -1,33 +1,39 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
+using UnityEngine.UI;
+using TMPro;  // ← Добавь для TextMeshPro
 
 public class CutsceneManager : MonoBehaviour
 {
-    [Header("Текст для сцен")]
-    public string[] dialogueLines;  // Массив строк (каждая строка = одна сцена)
+    [Header("Картинки для сцен")]
+    public Sprite[] cutsceneImages;
+    
+    [Header("Текст для каждой картинки")]
+    public string[] dialogueTexts;  // ← Массив текста (должен совпадать по размеру с картинками!)
     
     [Header("UI")]
-    public TextMeshProUGUI dialogueText;
-    public GameObject fadePanel;    // Чёрная панель для затемнения
+    public Image cutsceneImage;
+    public TextMeshProUGUI dialogueText;  // ← Ссылка на текст
+    public GameObject fadePanel;
     
     [Header("Настройки")]
-    public float fadeDuration = 1f; // Длительность затемнения
-    public string nextSceneName = "floor1"; // Сцена после катсцен
+    public float fadeDuration = 1f;
+    public string nextSceneName = "floor1";
     
     private int currentIndex = 0;
     private bool isTransitioning = false;
 
     void Start()
     {
-        // Показываем первую сцену
-        if (dialogueLines.Length > 0)
-        {
-            dialogueText.text = dialogueLines[0];
-        }
+        // Показываем первую картинку
+        if (cutsceneImages.Length > 0)
+            cutsceneImage.sprite = cutsceneImages[0];
         
-        // Затемнение в начале
+        // Показываем первый текст
+        if (dialogueTexts.Length > 0)
+            dialogueText.text = dialogueTexts[0];
+        
         if (fadePanel != null)
         {
             fadePanel.SetActive(true);
@@ -39,38 +45,52 @@ public class CutsceneManager : MonoBehaviour
     {
         if (isTransitioning) return;
 
-        // Левая кнопка мыши — следующая сцена
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))  // ЛКМ → следующая
         {
-            NextScene();
+            NextImage();
         }
-        // Правая кнопка мыши — предыдущая сцена
-        else if (Input.GetMouseButtonDown(1))
+        else if (Input.GetMouseButtonDown(1))  // ПКМ → предыдущая
         {
-            PreviousScene();
+            PreviousImage();
         }
     }
 
-    void NextScene()
+    void NextImage()
     {
-        if (currentIndex < dialogueLines.Length - 1)
+        if (currentIndex < cutsceneImages.Length - 1)
         {
             currentIndex++;
-            dialogueText.text = dialogueLines[currentIndex];
+            
+            // Меняем картинку
+            cutsceneImage.sprite = cutsceneImages[currentIndex];
+            
+            // Меняем текст (если есть текст для этой картинки)
+            if (currentIndex < dialogueTexts.Length && dialogueTexts[currentIndex] != null)
+            {
+                dialogueText.text = dialogueTexts[currentIndex];
+            }
         }
         else
         {
-            // Это была последняя сцена → переходим в игру
+            // Это была последняя картинка → переходим в игру
             StartCoroutine(LoadGame());
         }
     }
 
-    void PreviousScene()
+    void PreviousImage()
     {
         if (currentIndex > 0)
         {
             currentIndex--;
-            dialogueText.text = dialogueLines[currentIndex];
+            
+            // Меняем картинку
+            cutsceneImage.sprite = cutsceneImages[currentIndex];
+            
+            // Меняем текст
+            if (currentIndex < dialogueTexts.Length && dialogueTexts[currentIndex] != null)
+            {
+                dialogueText.text = dialogueTexts[currentIndex];
+            }
         }
     }
 
@@ -78,26 +98,21 @@ public class CutsceneManager : MonoBehaviour
     {
         isTransitioning = true;
         
-        // Затемнение
         if (fadePanel != null)
         {
             fadePanel.SetActive(true);
-            // Плавно появляется чёрный фон
             yield return StartCoroutine(FadeToBlack());
         }
         
-        // Загружаем игровую сцену
         SceneManager.LoadScene(nextSceneName);
     }
 
     IEnumerator FadeIn()
     {
         CanvasGroup group = fadePanel.GetComponent<CanvasGroup>();
-        if (group == null)
-            group = fadePanel.AddComponent<CanvasGroup>();
+        if (group == null) group = fadePanel.AddComponent<CanvasGroup>();
         
         group.alpha = 1f;
-        
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
@@ -105,7 +120,6 @@ public class CutsceneManager : MonoBehaviour
             group.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
             yield return null;
         }
-        
         group.alpha = 0f;
         fadePanel.SetActive(false);
     }
@@ -113,12 +127,10 @@ public class CutsceneManager : MonoBehaviour
     IEnumerator FadeToBlack()
     {
         CanvasGroup group = fadePanel.GetComponent<CanvasGroup>();
-        if (group == null)
-            group = fadePanel.AddComponent<CanvasGroup>();
+        if (group == null) group = fadePanel.AddComponent<CanvasGroup>();
         
         fadePanel.SetActive(true);
         group.alpha = 0f;
-        
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
@@ -126,7 +138,6 @@ public class CutsceneManager : MonoBehaviour
             group.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeDuration);
             yield return null;
         }
-        
         group.alpha = 1f;
         yield return new WaitForSeconds(0.3f);
     }
